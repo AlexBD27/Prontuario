@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reporte por Trabajador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #1a202c;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #e2e8f0;
+        }
+        th {
+            background-color: #edf2f7;
+            text-align: left;
+        }
+        th, td {
+            padding: 10px;
+        }
+        td {
+            font-size: 12px;
+        }
+        p {
+            margin: 10px 0;
+        }
+        #logo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 150px;
+            height: auto;
+        }
+        .header-title {
+            margin-top: 40px; 
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ public_path('images/logo.png') }}" alt="Logo de la Institución" id="logo">
+    <h1 class="header-title">REPORTE POR TRABAJADORES</h1>
+
+    @forelse ($groupedProntuarios as $area => $groups)
+        <h2>{{ $area }}</h2>
+        @foreach ($groups as $group => $workers)
+            <h3>GRUPO: {{ $group }}</h3>
+            @foreach ($workers as $worker => $prontuarios)
+                <h4>TRABAJADOR: {{ $worker }}</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>N°</th>
+                            <th>Área</th>
+                            <th>Grupo</th>
+                            <th>Subgrupo</th>
+                            <th>E. Externa</th>
+                            <th>T. Público</th>
+                            <th>Giro</th>
+                            <th>Documento</th>
+                            <th>Número</th>
+                            <th>Folios</th>
+                            <th>Fecha</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $counter = 1; @endphp
+                        @foreach ($prontuarios as $index => $prontuario)
+                            <tr>
+                                <td>{{ $counter++ }}</td>
+                                <td>{{ $prontuario->area->abbreviation ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->group->description ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->subgroup->description ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->entity->abbreviation ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->publicType->description ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->giroType->description ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->docType->abbreviation ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->number ?? 'N/A' }}</td>
+                                <td>{{ $prontuario->folios ?? 'N/A' }}</td>
+                                <td>{{ \Carbon\Carbon::parse($prontuario->date)->format('d/m/Y') }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endforeach
+        @endforeach
+        @empty
+            <p colspan="10" style="text-align: center;">No hay números asociados</p>
+    @endforelse
+
+</body>
+</html>
