@@ -287,7 +287,11 @@ class ProntuarioRepository extends BaseRepository
         
         $direction = strtolower($direction) === 'asc' ? 'asc' : 'desc';
 
-        $query = Prontuario::with('attachment')
+        $query = Prontuario::with([
+                'attachment',
+                'worker.group',
+                'worker.subGroup'
+            ])
             ->whereHas('giroType', function ($q) {
                 $q->where('slug', 'externos');
             });

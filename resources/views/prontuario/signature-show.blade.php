@@ -47,6 +47,15 @@
                     <div><strong>Folios:</strong> {{ $prontuario->folios }}</div>
                     <div><strong>Fecha de Registro:</strong> {{ $prontuario->created_at->format('d/m/Y H:i') }}</div>
                     <div><strong>Tipo de Giro:</strong> <span class="uppercase text-indigo-600 font-medium">{{ $slug }}</span></div>
+                    <div>
+                        <strong>Área de Origen:</strong>
+                        {{ $prontuario->worker?->group?->description }}
+                        @if($prontuario->worker?->subGroup)
+                            - {{ $prontuario->worker->subGroup->description }}
+                        @endif
+                    </div>
+
+                    <div><strong>Generado por:</strong> {{ $prontuario->worker->name }}</div>
                 </div>
             </div>
 
