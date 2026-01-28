@@ -1,4 +1,12 @@
 <x-app-layout>
+
+    @php
+        $showAreaGroup = in_array($selectedOption, ['internos', 'entre-equipos', 'personales']);
+        $showEntidad = $selectedOption === 'externos';
+        $showPublico = $selectedOption === 'publicos';
+    @endphp
+
+
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             @if($selectedOption == 'internos')
@@ -41,7 +49,7 @@
                         <thead>
                             <tr>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    ID
+                                    N°
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Responsable
@@ -53,24 +61,6 @@
                                     Documento
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Asunto
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Area
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Grupo
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Subgrupo
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    E. Externa
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    T. Público
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Número
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
@@ -79,6 +69,30 @@
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Fecha
                                 </th>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    Asunto
+                                </th>
+                                @if($showAreaGroup)
+                                    <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                        Area
+                                    </th>
+                                    <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                        Grupo
+                                    </th>
+                                    <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                        Subgrupo
+                                    </th>
+                                @endif
+                                @if($showEntidad)
+                                    <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                        E. Externa
+                                    </th>
+                                @endif
+                                @if($showPublico)
+                                    <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                        T. Público
+                                    </th>
+                                @endif
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Comentario
                                 </th>
@@ -94,7 +108,7 @@
                             @foreach($prontuarios as $prontuario)
                             <tr class="odd:bg-gray-50 even:bg-white">
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->id }}
+                                    {{ $loop->iteration }}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     <a href="#" class="text-blue-500 hover:underline btn-view-worker" data-worker-id="{{ $prontuario->worker->id }}">
@@ -108,24 +122,6 @@
                                     {{ $prontuario->docType->description }}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->subject }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->area->abbreviation ?? '-' }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->group->description ?? '-' }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->subgroup->description ?? '-' }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->entity->description ?? '-' }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->publicType->description ?? '-' }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ $prontuario->number}}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
@@ -134,6 +130,30 @@
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ \Carbon\Carbon::parse($prontuario->date)->format('d/m/Y') }}
                                 </td>
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $prontuario->subject }}
+                                </td>
+                                @if($showAreaGroup)
+                                    <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                        {{ $prontuario->area->abbreviation ?? '-' }}
+                                    </td>
+                                    <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                        {{ $prontuario->group->description ?? '-' }}
+                                    </td>
+                                    <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                        {{ $prontuario->subgroup->description ?? '-' }}
+                                    </td>
+                                @endif
+                                @if($showEntidad)
+                                    <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                        {{ $prontuario->entity->description ?? '-' }}
+                                    </td>
+                                @endif
+                                @if($showPublico)
+                                    <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                        {{ $prontuario->publicType->description ?? '-' }}
+                                    </td>
+                                @endif
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ $prontuario->comment ?? '-'}}
                                 </td>

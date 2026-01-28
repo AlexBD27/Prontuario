@@ -141,6 +141,7 @@ class ProntuarioService
             'giro_type_id' => (int) $tipoGiro->id, //data['tipo_giro']
             'doc_type_id' => (int) $data['document_id'],
             'subject' => $data['subject'],
+            'date' => $data['date'],
             'area_id' => $data['area'] ?? null, 
             'group_id' => $data['grupo'] ?? null,
             'subgroup_id' => $data['subgrupo'] ?? null,
@@ -359,6 +360,11 @@ class ProntuarioService
     public function getTotalByField(string $field, $value, ?int $areaId = null, ?int $workerId = null): int
     {
         return $this->prontuarioRepository->countByField($field, $value, $areaId, $workerId);
+    }
+
+    public function getTotalByFields(array $conditions, ?int $areaId = null, ?int $workerId = null): int
+    {
+        return $this->prontuarioRepository->countByConditions($conditions, $areaId, $workerId);
     }
 
     private function validateProntuarioContext(array $data, $tipoGiro): void

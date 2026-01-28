@@ -132,6 +132,28 @@ class ProntuarioRepository extends BaseRepository
         return $query->count();
     }
 
+    public function countByConditions(array $conditions, ?int $areaId = null, ?int $workerId = null): int 
+    {
+        $query = $this->getByActualPeriod();
+
+        foreach ($conditions as $field => $value) {
+            $query->where($field, $value);
+        }
+
+        if ($areaId) {
+            $query->whereHas('worker.group.areaGroupType.area', function ($query) use ($areaId) {
+                $query->where('id', $areaId);
+            });
+        }
+
+        if ($workerId) {
+            $query->where('worker_id', $workerId);
+        }
+
+        return $query->count();
+    }
+
+
     public function groupByArea(?int $areaId = null)
     {
         $inicioLote = $this->model->where('reset', 0)->orderBy('created_at', 'desc')->first();

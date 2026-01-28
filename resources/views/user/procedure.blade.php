@@ -27,6 +27,9 @@
                     <table id="prontuario-table" class="min-w-full leading-normal w-full">
                         <thead>
                             <tr>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    N°
+                                </th>
                                 @if ($giroType->slug === 'internos' || $giroType->slug === 'entre-equipos' || $giroType->slug === 'personales')
                                     <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                         Area
@@ -57,9 +60,6 @@
                                     Documento
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Asunto
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Número
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
@@ -67,6 +67,9 @@
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Fecha
+                                </th>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    Asunto
                                 </th>
                                 @if ($giroType->slug === 'externos')
                                     <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
@@ -84,6 +87,9 @@
                         <tbody id="prontuarios-body">
                             @foreach($prontuarios as $prontuario)
                             <tr class="odd:bg-gray-50 even:bg-white">
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $loop->iteration }}
+                                </td>
                                 @if ($giroType->slug === 'internos' || $giroType->slug === 'entre-equipos' || $giroType->slug === 'personales')
                                     <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                         {{ $prontuario->area->abbreviation ?? '-' }}
@@ -114,9 +120,6 @@
                                     {{ $prontuario->docType->description }}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->subject }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ $prontuario->number}}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
@@ -124,6 +127,9 @@
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ \Carbon\Carbon::parse($prontuario->date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $prontuario->subject }}
                                 </td>
                                 @if ($giroType->slug === 'externos')
                                     <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">

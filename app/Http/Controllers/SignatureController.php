@@ -38,7 +38,7 @@ class SignatureController extends Controller
 
     public function show($slug, $id, $from)
     {
-        $prontuario = $this->prontuarioService->getByIdWithRelations($id, ['docType', 'attachment', 'area', 'group', 'subgroup', 'entity', 'publicType', 'worker.group', 'worker.subGroup']);
+        $prontuario = $this->prontuarioService->getByIdWithRelations($id, ['docType', 'attachment', 'area', 'group', 'subgroup', 'entity', 'publicType', 'worker.group.area', 'worker.subGroup']);
         if (!$prontuario) {
             return redirect()->back()->with('error', 'Número no encontrado.');
         }

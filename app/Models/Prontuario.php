@@ -28,6 +28,11 @@ class Prontuario extends Model
         'subject',
     ];
 
+    protected $casts = [
+        'date' => 'date',
+    ];
+
+
     public function worker(): BelongsTo
     {
         return $this->belongsTo(Worker::class)->withTrashed();

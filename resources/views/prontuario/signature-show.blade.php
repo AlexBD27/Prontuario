@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Firmar Documento Número: <span class="text-indigo-600 font-bold">{{ $prontuario->number }}</span>
+            Firmar Documento
         </h2>
     </x-slot>
 
@@ -31,6 +31,18 @@
                 </a>
             </div>
 
+
+            <div class="bg-indigo-50 border-l-4 border-indigo-600 rounded-md p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-wide text-indigo-700 font-semibold">
+                    Número generado
+                </p>
+
+                <p class="mt-1 text-3xl sm:text-4xl font-extrabold text-indigo-800">
+                    {{ $prontuario->number }}
+                </p>
+            </div>
+
+
             {{-- Info Documento --}}
             <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
                 <div class="flex items-center mb-4">
@@ -49,11 +61,10 @@
                     <div><strong>Tipo de Giro:</strong> <span class="uppercase text-indigo-600 font-medium">{{ $slug }}</span></div>
                     <div>
                         <strong>Área de Origen:</strong>
-                        {{ $prontuario->worker?->group?->description }}
-                        @if($prontuario->worker?->subGroup)
-                            - {{ $prontuario->worker->subGroup->description }}
-                        @endif
+                        {{ $prontuario->worker?->group?->area?->abbreviation }}
+                        - {{ $prontuario->worker?->group?->description }}
                     </div>
+
 
                     <div><strong>Generado por:</strong> {{ $prontuario->worker->name }}</div>
                 </div>
@@ -75,10 +86,17 @@
                     {{-- <h3 class="text-lg font-bold text-gray-700 mb-3">Documento Original</h3> --}}
                     @if($prontuario->attachment)
                         <div class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2 flex items-center justify-between">
-                            <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" target="_blank"
+                            <!-- <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" target="_blank"
                                 class="text-sm text-indigo-600 hover:text-indigo-800 truncate max-w-[80%]">
                                 Documento original
-                            </a>
+                            </a> -->
+
+                            <button
+                                type="button"
+                                onclick="openPdfViewer('{{ asset('storage/' . $prontuario->attachment->file_path) }}')"
+                                class="text-sm text-indigo-600 hover:text-indigo-800 truncate max-w-[80%] text-left">
+                                Documento original
+                            </button>
 
                             <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" download
                                 class="text-indigo-600 hover:text-indigo-800" title="Descargar documento original">
@@ -98,11 +116,18 @@
 
                     @if($prontuario->attachment && $prontuario->attachment->signed_file_path)
                         <div class="bg-green-50 border border-green-300 rounded-md px-4 py-2 flex items-center justify-between mb-4">
-                            <a href="{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}" 
+                            <!-- <a href="{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}" 
                             target="_blank"
                             class="text-sm text-green-700 hover:text-green-900 truncate max-w-[80%]">
                                 Documento firmado
-                            </a>
+                            </a> -->
+
+                            <button
+                                type="button"
+                                onclick="openPdfViewer('{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}')"
+                                class="text-sm text-green-700 hover:text-green-900 truncate max-w-[80%] text-left">
+                                Documento firmado
+                            </button>
 
                             <div class="flex items-center gap-3">
 
@@ -186,10 +211,32 @@
                 </div>
             </div>
 
+        </div>
+    </div>
 
+    {{-- Modal visor PDF --}}
+    <div id="pdfModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
 
+        <div class="bg-white rounded-lg w-11/12 md:w-4/5 h-[85vh] flex flex-col shadow-xl">
 
-            
+            <div class="flex justify-between items-center px-4 py-3 border-b">
+                <h3 class="text-lg font-semibold text-gray-700">
+                    Vista previa del documento
+                </h3>
+                <button onclick="closePdfViewer()"
+                        class="text-gray-500 hover:text-red-600 text-xl font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <iframe
+                id="pdfIframe"
+                src=""
+                class="w-full flex-1"
+                frameborder="0">
+            </iframe>
+
         </div>
     </div>
 
@@ -214,6 +261,26 @@
             const fileName = e.target.files.length > 0 ? e.target.files[0].name : 'Ningún archivo seleccionado';
             document.getElementById('file-name').textContent = fileName;
         });
+    </script>
+
+    <script>
+        function openPdfViewer(url) {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePdfViewer() {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+
+            iframe.src = '';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     </script>
 
 </x-app-layout>

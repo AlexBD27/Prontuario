@@ -28,6 +28,9 @@
                         <thead>
                             <tr>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    N°
+                                </th>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     E. Externa
                                 </th>
                                 {{-- <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
@@ -37,12 +40,6 @@
                                     Documento
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Asunto
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                    Área de Origen
-                                </th>
-                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Número
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
@@ -50,6 +47,12 @@
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Fecha
+                                </th>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    Asunto
+                                </th>
+                                <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
+                                    Área de Origen
                                 </th>
                                 <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                     Firmado
@@ -66,6 +69,9 @@
                             @foreach($prontuarios as $prontuario)
                             <tr class="odd:bg-gray-50 even:bg-white">
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $loop->iteration }}
+                                </td>
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ $prontuario->entity->description ?? '-' }}
                                 </td>
                                 {{-- <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
@@ -75,15 +81,6 @@
                                     {{ $prontuario->docType->description }}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->subject }}
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                    {{ $prontuario->worker?->group?->description }}
-                                    @if($prontuario->worker?->subGroup)
-                                        - {{ $prontuario->worker->subGroup->description }}
-                                    @endif
-                                </td>
-                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ $prontuario->number}}
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
@@ -91,6 +88,15 @@
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     {{ \Carbon\Carbon::parse($prontuario->date)->format('d/m/Y') }}
+                                </td>
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $prontuario->subject }}
+                                </td>
+                                <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
+                                    {{ $prontuario->worker?->group?->area?->description ?? 'N/A' }}
+                                    <!-- @if($prontuario->worker?->subGroup)
+                                        - {{ $prontuario->worker->subGroup->description }}
+                                    @endif -->
                                 </td>
                                 <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                     @if($prontuario->attachment?->is_signed)

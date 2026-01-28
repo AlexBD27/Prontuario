@@ -50,6 +50,15 @@
                                     <div style="color: red;">{{ $message }}</div>
                                 @enderror
                             </div>
+
+                            <div class="mb-6 px-3">
+                                <label for="date" class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                                <input type="date" name="date" id="date" value="{{ old('date', optional($prontuario->date)->format('Y-m-d')) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out" required>
+                                @error('date')
+                                    <div style="color: red;">{{ $message }}</div>
+                                @enderror
+                            </div>
+
                             <div class="mb-6 px-3">
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Giro</label>
                                 <div class="mt-2">

@@ -43,8 +43,12 @@
                     <p class="text-4xl font-extrabold text-blue-500">{{ $totalPersonal }}</p>
                 </div>
                 <div class="bg-white shadow-lg rounded-lg p-6 text-center">
-                    <h3 class="text-lg font-bold text-gray-600">Números en el Periodo Actual</h3>
-                    <p class="text-4xl font-extrabold text-red-500">{{ $totalPeriodo }}</p>
+                    <h3 class="text-lg font-bold text-gray-600">Números Aprobados - Periodo Actual</h3>
+                    <p class="text-4xl font-extrabold text-red-500">{{ $totalPeriodoApproved }}</p>
+                </div>
+                <div class="bg-white shadow-lg rounded-lg p-6 text-center">
+                    <h3 class="text-lg font-bold text-gray-600">Números Desaprobados - Periodo Actual</h3>
+                    <p class="text-4xl font-extrabold text-red-500">{{ $totalPeriodoDisapproved }}</p>
                 </div>
             </div>
 

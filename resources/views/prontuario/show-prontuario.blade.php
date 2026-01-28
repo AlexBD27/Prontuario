@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Detalle del Número: <span class="text-indigo-600 font-bold">{{ $prontuario->number }}</span>
+            Detalle del Documento
         </h2>
     </x-slot>
 
@@ -41,6 +41,18 @@
             </div>
 
 
+            <div class="bg-indigo-50 border-l-4 border-indigo-600 rounded-md p-6 shadow-sm">
+                <p class="text-sm uppercase tracking-wide text-indigo-700 font-semibold">
+                    Número generado
+                </p>
+
+                <p class="mt-1 text-3xl sm:text-4xl font-extrabold text-indigo-800">
+                    {{ $prontuario->number }}
+                </p>
+            </div>
+
+
+
             <div class="bg-white shadow-md rounded-lg p-6 border border-gray-100">
                 <div class="flex items-center mb-4">
                     <svg class="h-6 w-6 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -54,7 +66,7 @@
                     <div><strong>Tipo de Documento:</strong> {{ $prontuario->docType->description }}</div>
                     <div><strong>Asunto:</strong> {{ $prontuario->subject }}</div>
                     <div><strong>Folios:</strong> {{ $prontuario->folios }}</div>
-                    <div><strong>Fecha de Registro:</strong> {{ $prontuario->created_at->format('d/m/Y H:i') }}</div>
+                    <div><strong>Fecha:</strong> {{ $prontuario->date->format('d/m/Y') }}</div>
                     <div><strong>Tipo de Giro:</strong> <span class="uppercase text-indigo-600 font-medium">{{ $slug }}</span></div>
 
                     @switch($slug)
@@ -136,10 +148,18 @@
                 @else
                     {{-- Documento original --}}
                     <div class="bg-gray-50 border border-gray-300 rounded-md px-4 py-2 flex items-center justify-between mb-4">
-                        <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" target="_blank"
+                        <!-- <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" target="_blank"
                             class="text-sm text-indigo-600 hover:text-indigo-800 truncate max-w-[80%]">
                             Documento original
-                        </a>
+                        </a> -->
+
+                        <button
+                            type="button"
+                            onclick="openPdfViewer('{{ asset('storage/' . $prontuario->attachment->file_path) }}')"
+                            class="text-sm text-indigo-600 hover:text-indigo-800 truncate max-w-[80%] text-left">
+                            Documento original
+                        </button>
+
                         <div class="flex items-center gap-2">
                             <a href="{{ asset('storage/' . $prontuario->attachment->file_path) }}" download
                                 class="text-indigo-600 hover:text-indigo-800" title="Descargar documento original">
@@ -169,10 +189,17 @@
                     {{-- Documento firmado (si existe) --}}
                     @if($prontuario->attachment->is_signed && $prontuario->attachment->signed_file_path)
                         <div class="bg-green-50 border border-green-300 rounded-md px-4 py-2 flex items-center justify-between mb-4">
-                            <a href="{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}" target="_blank"
+                            <!-- <a href="{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}" target="_blank"
                                 class="text-sm text-green-700 hover:text-green-900 truncate max-w-[80%]">
                                 Documento firmado
-                            </a>
+                            </a> -->
+
+                            <button
+                                type="button"
+                                onclick="openPdfViewer('{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}')"
+                                class="text-sm text-green-700 hover:text-green-900 truncate max-w-[80%] text-left">
+                                Documento firmado
+                            </button>
 
                             <a href="{{ asset('storage/' . $prontuario->attachment->signed_file_path) }}" download
                                 class="text-green-700 hover:text-green-900" title="Descargar documento firmado">
@@ -191,6 +218,34 @@
         </div>
     </div>
 
+
+    {{-- Modal visor PDF --}}
+    <div id="pdfModal"
+        class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+
+        <div class="bg-white rounded-lg w-11/12 md:w-4/5 h-[85vh] flex flex-col shadow-xl">
+
+            <div class="flex justify-between items-center px-4 py-3 border-b">
+                <h3 class="text-lg font-semibold text-gray-700">
+                    Vista previa del documento
+                </h3>
+                <button onclick="closePdfViewer()"
+                        class="text-gray-500 hover:text-red-600 text-xl font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <iframe
+                id="pdfIframe"
+                src=""
+                class="w-full flex-1"
+                frameborder="0">
+            </iframe>
+
+        </div>
+    </div>
+
+
     <script>
         document.getElementById('file-upload')?.addEventListener('change', function (e) {
             const file = e.target.files[0];
@@ -207,4 +262,25 @@
             }
         });
     </script>
+
+    <script>
+        function openPdfViewer(url) {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function closePdfViewer() {
+            const modal = document.getElementById('pdfModal');
+            const iframe = document.getElementById('pdfIframe');
+
+            iframe.src = '';
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    </script>
+
 </x-app-layout>

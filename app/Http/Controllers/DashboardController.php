@@ -58,7 +58,19 @@ class DashboardController extends Controller
 
         $totalProntuarios = $this->prontuarioService->getAll()->count();
 
-        $totalPeriodo = $this->prontuarioService->getTotalByField('period', now()->year, $areaId);
+        $conditionsPeriodoApproved = [
+            'period' => now()->year,
+            'approved' => 1
+        ];
+
+        $conditionsPeriodoDisapproved = [
+            'period' => now()->year,
+            'approved' => 0
+        ];
+
+        //$totalPeriodo = $this->prontuarioService->getTotalByField('period', now()->year, $areaId);
+        $totalPeriodoApproved = $this->prontuarioService->getTotalByFields($conditionsPeriodoApproved, $areaId);
+        $totalPeriodoDisapproved = $this->prontuarioService->getTotalByFields($conditionsPeriodoDisapproved, $areaId);
 
         $prontuariosPorArea = $this->prontuarioService->getProntuariosPorArea($areaId);
         $prontuariosPorTipoDocumento = $this->prontuarioService->getProntuariosPorTipoDocumento($areaId);
@@ -69,7 +81,8 @@ class DashboardController extends Controller
             'totalInternos',
             'totalExternos',
             'totalPublicos',
-            'totalPeriodo',
+            'totalPeriodoApproved',
+            'totalPeriodoDisapproved',
             'totalEquipos',
             'totalPersonal',
             'prontuariosPorArea',

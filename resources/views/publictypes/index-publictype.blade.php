@@ -27,7 +27,7 @@
                     <thead>
                         <tr>
                             <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
-                                ID
+                                N°
                             </th>
                             <th class="px-3 py-3 border-b-2 border-gray-200 bg-blue-900 text-center text-xs font-semibold text-white uppercase tracking-wider">
                                 Abreviación
@@ -47,7 +47,7 @@
                         @foreach($publicTypes as $publictype)
                         <tr class="odd:bg-gray-50 even:bg-white">
                             <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
-                                {{ $publictype->id }}
+                                {{ $loop->iteration }}
                             </td>
                             <td class="px-3 py-3 border-b border-gray-200 bg-white text-sm text-center">
                                 {{ $publictype->abbreviation }}
