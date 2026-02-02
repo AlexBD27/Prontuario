@@ -9,6 +9,43 @@
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     @endpush
 
+
+    @if($lastReport)
+        <div id="emailReportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 class="text-lg font-semibold mb-4">📄 Reporte generado</h3>
+
+                <p class="text-sm text-gray-600 mb-4">
+                    El reporte se generó correctamente.
+                    ¿Desea enviarlo por correo electrónico?
+                </p>
+
+                <form method="POST" action="{{ route('reports.send.email', $lastReport->id) }}">
+                    @csrf
+
+                    <input type="email"
+                        name="email"
+                        required
+                        placeholder="correo@ejemplo.com"
+                        class="w-full border rounded px-3 py-2 mb-4">
+
+                    <div class="flex justify-end gap-3">
+                        <button type="button" onclick="closeModal()"
+                                class="px-4 py-2 text-gray-600">
+                            No enviar
+                        </button>
+
+                        <button type="submit"
+                                class="px-4 py-2 bg-indigo-600 text-white rounded">
+                            📧 Enviar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
+
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="container mx-auto px-4 py-8">
@@ -202,12 +239,15 @@
                                     Cancelar
                                 </a>
                                 <button type="submit" 
-                                    onclick="setAction('{{ route('export.admin') }}')"
+                                    formaction="{{ route('export.admin') }}"
+                                    {{-- onclick="setAction('{{ route('export.admin') }}')" --}}
                                     class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
                                     Exportar a Excel
                                 </button>
                                 <button type="submit" 
-                                        onclick="setAction('{{ route('report.admin') }}')" 
+                                        {{-- onclick="setAction('{{ route('report.admin') }}')"  --}}
+                                        formaction="{{ route('report.admin') }}"
+                                        formtarget="_blank"
                                         class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                                     Generar PDF
                                 </button>
@@ -430,6 +470,28 @@
                     'transform': 'translateY(-50%)'
                 });
             });
-        </script>    
+        </script> 
+        
+        @if (session('success'))
+            <script>
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: '{{ session('success') }}',
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>
+        @endif
+        @if (session('error'))
+            <script>
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: '{{ session('error') }}',
+                    confirmButtonText: 'Cerrar'
+                });
+            </script>
+        @endif
+        
     @endpush
 </x-app-layout>

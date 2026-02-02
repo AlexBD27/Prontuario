@@ -6,6 +6,7 @@ use App\Exports\AdminExcelExport;
 use App\Exports\AdminExcelExportByWorker;
 use App\Exports\LinealCmExport;
 use App\Exports\WorkerExcelExport;
+use App\Models\GeneratedReport;
 use App\Repositories\AreaRepository;
 use App\Repositories\DocTypeRepository;
 use App\Repositories\GiroTypeRepository;
@@ -15,6 +16,7 @@ use Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class PDFGeneratorController extends Controller
@@ -45,7 +47,13 @@ class PDFGeneratorController extends Controller
         {
             $areas = $this->areaRepository->getAreasWithRelations(['groupTypes.areaGroupTypes.groups.workers']);
             $workers = $this->workerRepository->getAll();
-            return view('reports.admin.index-report', compact('years', 'workers', 'areas', 'doctypes', 'girotypes'));
+
+            $lastReport = GeneratedReport::where('user_id', auth()->id())
+                ->where('emailed', false)
+                ->latest()
+                ->first();
+
+            return view('reports.admin.index-report', compact('years', 'workers', 'areas', 'doctypes', 'girotypes', 'lastReport'));
         }else{
             return view('reports.user.index-report', compact('years', 'girotypes', 'doctypes'));
         }
@@ -70,6 +78,9 @@ class PDFGeneratorController extends Controller
         $startDate = Carbon::parse($request->input('start_date'))->format('d/m/Y');
         $endDate = Carbon::parse($request->input('end_date'))->format('d/m/Y');
         $prontuarios = $this->getAdminProntuarios($request);
+
+        $fileName = 'reporte_admin_' . now()->format('Ymd_His') . '.pdf';
+        $filePath = 'reports/admin/' . $fileName;
 
         if($reportType === 'all')
         {
@@ -101,8 +112,38 @@ class PDFGeneratorController extends Controller
             $groupedProntuarios = $prontuarios;
             $pdf = Pdf::loadView('reports.admin.worker-report', compact('groupedProntuarios'))->setPaper('a4', 'landscape');
         }
+
+        $directory = 'reports/admin';
+
+        if (!Storage::exists($directory)) {
+            Storage::makeDirectory($directory);
+        }
+
+        Storage::put($filePath, $pdf->output());
+
+        $report = GeneratedReport::create([
+            'user_id'   => auth()->id(),
+            'file_path'=> $filePath,
+            'file_name'=> $fileName,
+            'type'     => 'pdf',
+        ]);
+
+
+        session([
+            'last_report_path' => $filePath,
+            'last_report_name' => $fileName,
+        ]);
+
+        return response()->file(
+            Storage::path($filePath),
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$fileName.'"'
+            ]
+        );
+
     
-        return $pdf->download('reporte-admin.pdf');
+        //return $pdf->download('reporte-admin.pdf');
     }
 
 
