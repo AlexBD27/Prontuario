@@ -11,7 +11,6 @@ use App\Http\Controllers\PDFGeneratorController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProntuarioController;
 use App\Http\Controllers\PublicTypeController;
-use App\Http\Controllers\ReportEmailController;
 use App\Http\Controllers\SignatureController;
 use App\Http\Controllers\SubgroupController;
 use App\Http\Controllers\UserController;
@@ -109,19 +108,6 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
 
     Route::get('/prontuario/clean-all', [ProntuarioController::class,'cleanAll'])->name('prontuario.clean');
     Route::post('/prontuario/reset-all', [ProntuarioController::class,'resetAll'])->name('prontuario.resetAll');
-
-    Route::post('/reports/{report}/send-email', [ReportEmailController::class, 'send'])
-    ->name('reports.send.email');
-
-    Route::get('/reports/view/{report}', [PDFGeneratorController::class, 'view'])
-    ->name('reports.view');
-
-    Route::post('/reports/{report}/discard', [ReportEmailController::class, 'discard'])
-    ->name('reports.discard');
-
-
-
-
 });
 
 Route::middleware('auth')->group(function () {

@@ -48,12 +48,7 @@ class PDFGeneratorController extends Controller
             $areas = $this->areaRepository->getAreasWithRelations(['groupTypes.areaGroupTypes.groups.workers']);
             $workers = $this->workerRepository->getAll();
 
-            $lastReport = GeneratedReport::where('user_id', auth()->id())
-                ->where('status', 'PENDING')
-                ->latest()
-                ->first();
-
-            return view('reports.admin.index-report', compact('years', 'workers', 'areas', 'doctypes', 'girotypes', 'lastReport'));
+            return view('reports.admin.index-report', compact('years', 'workers', 'areas', 'doctypes', 'girotypes'));
         }else{
             return view('reports.user.index-report', compact('years', 'girotypes', 'doctypes'));
         }
@@ -121,46 +116,15 @@ class PDFGeneratorController extends Controller
 
         Storage::put($filePath, $pdf->output());
 
-        $report = GeneratedReport::create([
-            'user_id'   => auth()->id(),
-            'file_path'=> $filePath,
-            'file_name'=> $fileName,
-            'type'     => 'pdf',
-            'status' => 'PENDING',
-        ]);
-
-        return response()->json([
-            'file_url' => route('reports.view', $report->id),
-            'report_id' => $report->id,
-        ]);
-
-
-        // return response()->file(
-        //     Storage::path($filePath),
-        //     [
-        //         'Content-Type' => 'application/pdf',
-        //         'Content-Disposition' => 'inline; filename="'.$fileName.'"'
-        //     ]
-        // );
-
-    
-        //return $pdf->download('reporte-admin.pdf');
-    }
-
-
-    public function view(GeneratedReport $report)
-    {
-        if ($report->user_id !== auth()->id()) {
-            abort(403);
-        }
-
         return response()->file(
-            storage_path('app/private/' . $report->file_path),
-            ['Content-Type' => 'application/pdf']
+            Storage::path($filePath),
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'inline; filename="'.$fileName.'"'
+            ]
         );
+    
     }
-
-
 
     public function exportByAdmin(Request $request)
     {
