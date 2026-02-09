@@ -49,7 +49,7 @@ class PDFGeneratorController extends Controller
             $workers = $this->workerRepository->getAll();
 
             $lastReport = GeneratedReport::where('user_id', auth()->id())
-                ->where('emailed', false)
+                ->where('status', 'PENDING')
                 ->latest()
                 ->first();
 
@@ -126,25 +126,40 @@ class PDFGeneratorController extends Controller
             'file_path'=> $filePath,
             'file_name'=> $fileName,
             'type'     => 'pdf',
+            'status' => 'PENDING',
+        ]);
+
+        return response()->json([
+            'file_url' => route('reports.view', $report->id),
+            'report_id' => $report->id,
         ]);
 
 
-        session([
-            'last_report_path' => $filePath,
-            'last_report_name' => $fileName,
-        ]);
-
-        return response()->file(
-            Storage::path($filePath),
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="'.$fileName.'"'
-            ]
-        );
+        // return response()->file(
+        //     Storage::path($filePath),
+        //     [
+        //         'Content-Type' => 'application/pdf',
+        //         'Content-Disposition' => 'inline; filename="'.$fileName.'"'
+        //     ]
+        // );
 
     
         //return $pdf->download('reporte-admin.pdf');
     }
+
+
+    public function view(GeneratedReport $report)
+    {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        return response()->file(
+            storage_path('app/private/' . $report->file_path),
+            ['Content-Type' => 'application/pdf']
+        );
+    }
+
 
 
     public function exportByAdmin(Request $request)

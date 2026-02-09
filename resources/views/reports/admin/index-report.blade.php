@@ -240,17 +240,21 @@
                                 </a>
                                 <button type="submit" 
                                     formaction="{{ route('export.admin') }}"
-                                    {{-- onclick="setAction('{{ route('export.admin') }}')" --}}
                                     class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
                                     Exportar a Excel
                                 </button>
-                                <button type="submit" 
-                                        {{-- onclick="setAction('{{ route('report.admin') }}')"  --}}
+                                <button type="button"
+                                    onclick="generateReport('pdf')"
+                                    class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                    Generar PDF
+                                </button>
+
+                                {{-- <button type="submit" 
                                         formaction="{{ route('report.admin') }}"
                                         formtarget="_blank"
                                         class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                                     Generar PDF
-                                </button>
+                                </button> --}}
                             </div>
                         </div>
                     </form>
@@ -266,6 +270,48 @@
             function setAction(url) {
                 const form = document.getElementById('export-form');
                 form.action = url;
+            }
+
+            function generateReport(type) {
+
+                console.log('Generando reporte en formato:', type);
+                const form = document.getElementById('export-form');
+                const formData = new FormData(form);
+
+                formData.append('format', type);
+
+                fetch("{{ route('report.admin') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Respuesta del servidor:', data);
+                    // Abrir PDF
+                    window.open(data.file_url, '_blank');
+
+                    // Mostrar modal
+                    openModal(data.report_id);
+                })
+                .catch(() => alert('Error al generar el reporte'));
+            }
+
+            function closeModal() {
+                const reportId = window.lastReportId;
+
+                fetch(`/reports/${reportId}/discard`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    }
+                }).finally(() => {
+                    document.getElementById('emailReportModal').classList.add('hidden');
+                    window.lastReportId = null;
+                });
             }
         </script>
         

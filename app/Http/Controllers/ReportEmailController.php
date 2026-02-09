@@ -31,12 +31,29 @@ class ReportEmailController extends Controller
         }
 
 
-        $report->update(['emailed' => true]);
+        $report->update(['emailed' => true, 'status' => 'EMAILED']);
 
         Storage::disk('private')->delete($report->file_path);
 
         return back()->with('success', 'Reporte enviado correctamente');
     }
+
+    public function discard(GeneratedReport $report)
+    {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        // Eliminar archivo
+        Storage::disk('private')->delete($report->file_path);
+
+        $report->update([
+            'status' => 'DISCARDED'
+        ]);
+
+        return response()->json(['ok' => true]);
+    }
+
 
 
 }

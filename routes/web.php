@@ -113,6 +113,14 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
     Route::post('/reports/{report}/send-email', [ReportEmailController::class, 'send'])
     ->name('reports.send.email');
 
+    Route::get('/reports/view/{report}', [PDFGeneratorController::class, 'view'])
+    ->name('reports.view');
+
+    Route::post('/reports/{report}/discard', [ReportEmailController::class, 'discard'])
+    ->name('reports.discard');
+
+
+
 
 });
 
