@@ -6,7 +6,7 @@ use App\Exports\AdminExcelExport;
 use App\Exports\AdminExcelExportByWorker;
 use App\Exports\LinealCmExport;
 use App\Exports\WorkerExcelExport;
-use App\Models\GeneratedReport;
+use App\Mail\AdminReportMail;
 use App\Repositories\AreaRepository;
 use App\Repositories\DocTypeRepository;
 use App\Repositories\GiroTypeRepository;
@@ -16,8 +16,8 @@ use Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
+use Mail;
 
 class PDFGeneratorController extends Controller
 {
@@ -69,62 +69,126 @@ class PDFGeneratorController extends Controller
 
     public function generateAdminReports(Request $request)
     {
+        $pdf = $this->buildAdminReportPdf($request);
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="reporte_admin.pdf"',
+        ]);
+    }
+
+    private function buildAdminReportPdf(Request $request)
+    {
         $reportType = $request->input('report_type');
-        $startDate = Carbon::parse($request->input('start_date'))->format('d/m/Y');
-        $endDate = Carbon::parse($request->input('end_date'))->format('d/m/Y');
+        $startDate  = Carbon::parse($request->input('start_date'))->format('d/m/Y');
+        $endDate    = Carbon::parse($request->input('end_date'))->format('d/m/Y');
+
         $prontuarios = $this->getAdminProntuarios($request);
 
-        $fileName = 'reporte_admin_' . now()->format('Ymd_His') . '.pdf';
-        $filePath = 'reports/admin/' . $fileName;
+        switch ($reportType) {
+            case 'lineal_cm':
+                return Pdf::loadView(
+                    'reports.admin.lineal-cm',
+                    compact('prontuarios', 'startDate', 'endDate')
+                );
 
-        if($reportType === 'all')
-        {
-            $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
-        }
-        if($reportType === 'all_actual_period')
-        {
-            $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
-        }
-        if($reportType === 'doctype')
-        {
-            $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
-        }
-        if($reportType === 'derivation')
-        {
-            $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
-        }
-        if($reportType === 'lineal_cm')
-        {
-            $pdf = PDF::loadView('reports.admin.lineal-cm', compact('prontuarios', 'startDate', 'endDate'));
-        }
-        if($reportType === 'worker')
-        {
-            $groupedProntuarios = $prontuarios;
-            $pdf = Pdf::loadView('reports.admin.worker-report', compact('groupedProntuarios'))->setPaper('a4', 'landscape');
-        }
-        if($reportType === 'custom')
-        {
-            $groupedProntuarios = $prontuarios;
-            $pdf = Pdf::loadView('reports.admin.worker-report', compact('groupedProntuarios'))->setPaper('a4', 'landscape');
-        }
+            case 'worker':
+            case 'custom':
+                $groupedProntuarios = $prontuarios;
+                return Pdf::loadView(
+                    'reports.admin.worker-report',
+                    compact('groupedProntuarios')
+                )->setPaper('a4', 'landscape');
 
-        $directory = 'reports/admin';
-
-        if (!Storage::exists($directory)) {
-            Storage::makeDirectory($directory);
+            default:
+                return Pdf::loadView(
+                    'reports.admin.all-report',
+                    ['prontuario' => $prontuarios]
+                )->setPaper('a4', 'landscape');
         }
-
-        Storage::put($filePath, $pdf->output());
-
-        return response()->file(
-            Storage::path($filePath),
-            [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'inline; filename="'.$fileName.'"'
-            ]
-        );
-    
     }
+
+
+
+    // public function generateAdminReports(Request $request)
+    // {
+    //     $reportType = $request->input('report_type');
+    //     $startDate = Carbon::parse($request->input('start_date'))->format('d/m/Y');
+    //     $endDate = Carbon::parse($request->input('end_date'))->format('d/m/Y');
+    //     $prontuarios = $this->getAdminProntuarios($request);
+
+    //     $fileName = 'reporte_admin_' . now()->format('Ymd_His') . '.pdf';
+    //     $filePath = 'reports/admin/' . $fileName;
+
+    //     if($reportType === 'all')
+    //     {
+    //         $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
+    //     }
+    //     if($reportType === 'all_actual_period')
+    //     {
+    //         $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
+    //     }
+    //     if($reportType === 'doctype')
+    //     {
+    //         $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
+    //     }
+    //     if($reportType === 'derivation')
+    //     {
+    //         $pdf = Pdf::loadView('reports.admin.all-report', ['prontuario' => $prontuarios])->setPaper('a4', 'landscape');
+    //     }
+    //     if($reportType === 'lineal_cm')
+    //     {
+    //         $pdf = PDF::loadView('reports.admin.lineal-cm', compact('prontuarios', 'startDate', 'endDate'));
+    //     }
+    //     if($reportType === 'worker')
+    //     {
+    //         $groupedProntuarios = $prontuarios;
+    //         $pdf = Pdf::loadView('reports.admin.worker-report', compact('groupedProntuarios'))->setPaper('a4', 'landscape');
+    //     }
+    //     if($reportType === 'custom')
+    //     {
+    //         $groupedProntuarios = $prontuarios;
+    //         $pdf = Pdf::loadView('reports.admin.worker-report', compact('groupedProntuarios'))->setPaper('a4', 'landscape');
+    //     }
+
+    //     $directory = 'reports/admin';
+
+    //     if (!Storage::exists($directory)) {
+    //         Storage::makeDirectory($directory);
+    //     }
+
+    //     Storage::put($filePath, $pdf->output());
+
+    //     return response()->file(
+    //         Storage::path($filePath),
+    //         [
+    //             'Content-Type' => 'application/pdf',
+    //             'Content-Disposition' => 'inline; filename="'.$fileName.'"'
+    //         ]
+    //     );
+    
+    // }
+
+
+    public function sendAdminReportEmail(Request $request)
+    {
+        $request->validate([
+            'email'   => 'required|email',
+            'filters'=> 'required|array'
+        ]);
+
+        $pdf = $this->buildAdminReportPdf(
+            new Request($request->filters)
+        );
+
+        Mail::to($request->email)->send(
+            new AdminReportMail($pdf->output())
+        );
+
+        return response()->json(['ok' => true]);
+    }
+
+
 
     public function exportByAdmin(Request $request)
     {

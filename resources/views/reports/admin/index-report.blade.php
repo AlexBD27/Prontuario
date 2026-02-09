@@ -206,18 +206,20 @@
                                     class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition duration-150 ease-in-out">
                                     Exportar a Excel
                                 </button>
-                                <!-- <button type="button"
-                                    onclick="generateReport('pdf')"
-                                    class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
-                                    Generar PDF
-                                </button> -->
 
-                                <button type="submit" 
+                                <!-- <button type="submit" 
                                         formaction="{{ route('report.admin') }}"
                                         formtarget="_blank"
                                         class="px-6 py-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
                                     Generar PDF
-                                </button> 
+                                </button>  -->
+
+                                <button type="button"
+                                        onclick="generateReport()"
+                                        class="px-6 py-3 rounded-md text-white bg-indigo-600">
+                                    Generar PDF
+                                </button>
+
                             </div>
                         </div>
                     </form>
@@ -226,18 +228,130 @@
         </div>
     </div>
 
+
+    <div id="emailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded w-96">
+            <h2 class="text-lg font-semibold mb-4">¿Enviar por correo?</h2>
+
+            <input type="email" id="emailInput"
+                placeholder="correo@ejemplo.com"
+                class="w-full border rounded px-3 py-2 mb-4">
+
+            <div class="flex justify-end gap-3">
+                <button onclick="closeEmailModal()" class="text-gray-600">
+                    No enviar
+                </button>
+
+                <button onclick="sendEmail()" class="bg-indigo-600 text-white px-4 py-2 rounded">
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
     @push('scripts')
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>
             function setAction(url) {
                 const form = document.getElementById('export-form');
                 form.action = url;
             }
 
-            function closeModal() {
-                document.getElementById('emailReportModal').classList.add('hidden');
+            function showLoading(title, text) {
+                Swal.fire({
+                    title: title,
+                    text: text,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
             }
+
+            function generateReport() {
+                const form = document.getElementById('export-form');
+                const formData = new FormData(form);
+
+                showLoading('Generando reporte...', 'Por favor espera');
+
+                fetch("{{ route('report.admin') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.blob();
+                })
+                .then(blob => {
+                    Swal.close();
+
+                    const pdfUrl = URL.createObjectURL(blob);
+
+                    window.open(pdfUrl, '_blank');
+
+                    window.lastReportData = Object.fromEntries(formData);
+
+                    openEmailModal();
+                })
+                .catch(() => {
+                    Swal.close();
+                    Swal.fire('Error', 'No se pudo generar el reporte', 'error');
+                });
+            }
+
+
+            function sendEmail() {
+                const email = document.getElementById('emailInput').value;
+
+                if (!email) {
+                    Swal.fire('Atención', 'Ingresa un correo válido', 'warning');
+                    return;
+                }
+
+                showLoading('Enviando correo...', 'Adjuntando reporte');
+
+                fetch("{{ route('report.admin.email') }}", {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        filters: window.lastReportData
+                    })
+                })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    Swal.close();
+
+                    Swal.fire('Éxito', 'Correo enviado correctamente', 'success');
+                    closeEmailModal();
+                })
+                .catch(() => {
+                    Swal.close();
+                    Swal.fire('Error', 'No se pudo enviar el correo', 'error');
+                });
+            }
+
+
+            function openEmailModal() {
+                document.getElementById('emailModal').classList.remove('hidden');
+            }
+
+            function closeEmailModal() {
+                document.getElementById('emailModal').classList.add('hidden');
+            }
+
+            // function closeModal() {
+            //     document.getElementById('emailReportModal').classList.add('hidden');
+            // }
         </script>
         
         <script>

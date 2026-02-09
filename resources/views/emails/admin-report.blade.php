@@ -2,14 +2,14 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Reporte generado</title>
+    <title>Reporte Z-pront</title>
 </head>
 <body style="font-family: Arial, sans-serif; color:#333">
 
     <p>Hola,</p>
 
     <p>
-        Se ha generado el reporte solicitado desde el sistema.
+        Ha recibido un reporte generado desde el sistema Z-pront.
     </p>
 
     <p>
@@ -18,7 +18,7 @@
 
     <p>
         Saludos,<br>
-        <strong>Sistema de Prontuarios</strong>
+        <strong>Z-pront</strong>
     </p>
 
 </body>

@@ -108,6 +108,11 @@ Route::middleware(['auth', CheckAdmin::class])->group(function () {
 
     Route::get('/prontuario/clean-all', [ProntuarioController::class,'cleanAll'])->name('prontuario.clean');
     Route::post('/prontuario/reset-all', [ProntuarioController::class,'resetAll'])->name('prontuario.resetAll');
+
+    Route::post('/report-admin/send-email', [PDFGeneratorController::class, 'sendAdminReportEmail'])
+    ->name('report.admin.email');
+
+
 });
 
 Route::middleware('auth')->group(function () {
@@ -132,7 +137,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/report', [PDFGeneratorController::class, 'index'])->name('report');
     Route::get('/report-user/{id}', [PDFGeneratorController::class, 'generateByWorker'])->name('report.user');
-    Route::get('/report-admin', [PDFGeneratorController::class, 'generateAdminReports'])->name('report.admin');
+    Route::post('/report-admin', [PDFGeneratorController::class, 'generateAdminReports'])->name('report.admin');
     Route::get('/export-excel', [PDFGeneratorController::class, 'exportByAdmin'])->name('export.admin');
     Route::get('/export-excel/{id}', [PDFGeneratorController::class, 'exportByWorker'])->name('export.user');  
 });
